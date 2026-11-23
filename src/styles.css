@@ -1,1 +1,101 @@
-/* You can add global styles to this file, and also import other style files */
+/* === Paleta inspirada en el Figma de CreditoTiendas === */
+:root {
+  --ct-primary: #0E3C2A;
+  --ct-primary-dark: #082c1f;
+  --ct-primary-soft: #E6F1EC;
+  --ct-accent: #BEF264;
+  --ct-accent-dark: #a8de4d;
+
+  --ct-bg: #F6F7F5;
+  --ct-surface: #FFFFFF;
+  --ct-border: #E7EAE6;
+  --ct-text: #0F1A14;
+  --ct-text-muted: #6B7570;
+  --ct-text-light: #9AA19C;
+
+  --ct-success: #16A34A;
+  --ct-warning: #D97706;
+  --ct-danger: #DC2626;
+
+  --ct-radius: 14px;
+  --ct-radius-sm: 10px;
+  --ct-shadow: 0 1px 2px rgba(10, 22, 15, 0.03);
+  --ct-shadow-md: 0 2px 6px rgba(10, 22, 15, 0.05), 0 1px 2px rgba(10, 22, 15, 0.03);
+}
+
+html, body { background: var(--ct-bg); color: var(--ct-text); }
+* { box-sizing: border-box; }
+
+/* Card base */
+.ct-card {
+  background: var(--ct-surface);
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  padding: 22px 24px;
+  box-shadow: var(--ct-shadow);
+}
+.ct-card--dark {
+  background: var(--ct-primary);
+  color: #fff;
+  border-color: var(--ct-primary);
+}
+
+/* Titulares */
+.ct-page-title  { font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+.ct-page-subtitle { color: var(--ct-text-muted); margin: 4px 0 0 0; font-size: 14px; }
+.ct-section-title { font-size: 15px; font-weight: 600; margin: 0 0 14px 0; }
+
+/* Toolbar */
+.ct-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.ct-toolbar__actions { display: flex; gap: 10px; align-items: center; }
+
+/* KPIs */
+.ct-grid { display: grid; gap: 16px; }
+.ct-grid--kpis { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.ct-kpi { display: flex; flex-direction: column; gap: 6px; position: relative; }
+.ct-kpi__label { font-size: 12.5px; color: var(--ct-text-muted); font-weight: 500; }
+.ct-kpi__value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+.ct-kpi__hint  { font-size: 12px; color: var(--ct-text-muted); }
+.ct-kpi__dot   { width: 8px; height: 8px; border-radius: 50%; background: var(--ct-success); position: absolute; top: 2px; right: 2px; }
+.ct-kpi__dot--danger  { background: var(--ct-danger); }
+.ct-kpi__dot--warning { background: var(--ct-warning); }
+
+.ct-card--dark .ct-kpi__label { color: rgba(255,255,255,0.72); }
+.ct-card--dark .ct-kpi__hint  { color: rgba(255,255,255,0.7); }
+
+/* Badges */
+.ct-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; }
+.ct-badge--success { background: #DCF5E3; color: #126A36; }
+.ct-badge--warning { background: #FDECCE; color: #92540C; }
+.ct-badge--danger  { background: #FBDADA; color: #9B1C1C; }
+.ct-badge--neutral { background: #EEF0ED; color: var(--ct-text-muted); }
+
+/* Tabla */
+.ct-table { width: 100%; border-collapse: collapse; }
+.ct-table th {
+  text-align: left; font-size: 12px; font-weight: 500;
+  color: var(--ct-text-muted); text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 12px 16px; border-bottom: 1px solid var(--ct-border);
+}
+.ct-table td { padding: 14px 16px; border-bottom: 1px solid var(--ct-border); font-size: 14px; }
+.ct-table tr:last-child td { border-bottom: none; }
+.ct-table tr:hover td { background: rgba(14, 60, 42, 0.02); }
+
+/* Form fields global look */
+.mat-mdc-form-field { width: 100%; }
+
+/* Snackbar */
+.ct-snack-success { --mdc-snackbar-container-color: #126A36; --mat-snack-bar-button-color: #fff; }
+.ct-snack-error   { --mdc-snackbar-container-color: #9B1C1C; --mat-snack-bar-button-color: #fff; }
+
+/* Chart bars simple */
+.ct-bars { display: flex; align-items: flex-end; gap: 10px; height: 180px; padding: 0 4px; }
+.ct-bar-group { display: flex; gap: 3px; align-items: flex-end; flex: 1; }
+.ct-bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 2px; }
+.ct-bar--paid { background: var(--ct-accent); }
+.ct-bar--pending { background: var(--ct-primary); }
+.ct-bar-group__label { text-align: center; font-size: 11px; color: var(--ct-text-muted); padding-top: 6px; }
+.ct-bars-wrap { display: flex; flex-direction: column; gap: 4px; }
+.ct-bars-wrap__legend { display: flex; gap: 14px; font-size: 12px; color: var(--ct-text-muted); }
+.ct-bars-wrap__legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ct-bars-wrap__legend .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
