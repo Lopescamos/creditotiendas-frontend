@@ -47,6 +47,14 @@ Shared no define store: es kernel, no estado de negocio.
 Ninguna directa — el app-shell lo monta la rama `feature/iam` cuando
 define el nodo `/app`.
 
+## Tests
+
+- `domain/model/user-role.enum.spec.ts` — valida que `roleLabels` cubre
+  los 3 valores de `UserRole`.
+- `infrastructure/base-api-endpoint.spec.ts` — mapeo de 403/404/422
+  (con y sin mensaje), fallback a `statusText`, y happy-path de
+  `getAll/getById` con assembler.
+
 ## Notas
 
 - Dependencia cruzada conocida: `shared` importa de `iam`

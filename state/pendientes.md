@@ -44,9 +44,23 @@ pasa por los 5 agentes en orden y deja tu resumen en
   hoy se prueban con curl/Postman.
 - **Depende de:** nada nuevo del backend, los endpoints ya existen.
 
+### 5. Ampliar cobertura de pruebas unitarias
+- **BC afectado:** transversal
+- **Prioridad:** baja
+- **Por qué falta:** hoy existe cobertura retroactiva de los *stores*
+  y del `BaseApiEndpoint` (ver sección `## Tests` en cada
+  `estado-frontend-<bc>.md`), pero no hay specs de componentes
+  (templates del wizard, del register-payment, del app-shell) ni de
+  los demás endpoints por recurso.
+- **Depende de:** nada — es todo frontend; usa el mismo patrón ya
+  establecido (`vi.spyOn(Endpoint.prototype, …)`, `afterEach(() =>
+  vi.restoreAllMocks())`).
+
 ## Completado
 
 Los 6 bounded contexts (`shared`, `iam`, `store-management`,
 `credit-management`, `billing`, `audit`) están implementados de punta a
 punta — ver `docs/user-stories.md` para el detalle de qué US cubre cada
-uno.
+uno. Cada BC tiene cobertura de prueba inicial sobre su *store* y/o
+piezas críticas de infraestructura (ver sección `## Tests` en cada
+`state/estado-frontend-<bc>.md`).

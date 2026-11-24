@@ -61,6 +61,17 @@ solicitudes de compra.
 - US-01, US-02, US-04, US-12.
 - UF-05, UF-06, UF-07, UF-08.
 
+## Tests
+
+- `application/credit-management.store.spec.ts`:
+  - `simulate()` guarda el `PaymentPlan` y limpia error; con fallo
+    expone el mensaje y NO setea `simulation()`.
+  - `register()` exitoso agrega venta y descarta simulación previa;
+    fallido conserva la simulación para reintentar.
+  - `clearSimulation()` descarta el plan simulado.
+  - `approveRequest()` / `rejectRequest()` reemplazan la solicitud en
+    el signal y reject pasa el motivo al endpoint.
+
 ## Notas
 
 - El store-dashboard depende de `BillingStore` (dependencia conocida

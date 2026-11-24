@@ -52,6 +52,16 @@ Autenticación, sesión y gestión de usuarios/roles.
 - UF-01 — Login y enrutamiento por rol.
 - UF-03 — Admin Sistema: gestión de usuarios.
 
+## Tests
+
+- `application/auth.store.spec.ts` — hidratación desde `localStorage`,
+  `signIn` exitoso (token guardado + navegación por rol), `signIn`
+  fallido (sin navegar, error expuesto), `signOut` limpia storage, y
+  tabla de `landingFor()` para los 3 roles.
+- `infrastructure/auth-token.interceptor.spec.ts` — agrega
+  `Authorization: Bearer <token>` cuando hay token, no toca el header
+  si no hay token, y respeta `Authorization` si ya venía seteado.
+
 ## Notas
 
 - Shared importa `AUTH_TOKEN_KEY` y `AuthStore` de iam (dependencia
