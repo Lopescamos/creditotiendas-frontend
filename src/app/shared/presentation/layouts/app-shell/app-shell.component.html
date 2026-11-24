@@ -1,0 +1,56 @@
+<div class="shell">
+  <aside class="shell__sidebar">
+    <div class="shell__brand">
+      <div class="shell__brand-mark">{{ brand().mark }}</div>
+      <div class="shell__brand-text">
+        <span class="shell__brand-name">{{ brand().name }}</span>
+        <span class="shell__brand-tag">{{ brand().tag }}</span>
+      </div>
+    </div>
+
+    <nav class="shell__nav">
+      @for (item of items(); track item.route) {
+        <a class="shell__nav-item"
+           [routerLink]="item.route"
+           routerLinkActive="shell__nav-item--active">
+          <span class="shell__nav-initial">{{ item.initial }}</span>
+          <span class="shell__nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="shell__help">
+      <div class="shell__help-title">¿Necesitas ayuda?</div>
+      <p class="shell__help-text">Revisa cómo se calcula una cuota, qué es la mora y cuándo se corta la cuenta.</p>
+      <a class="shell__help-btn" href="https://docs.creditotiendas.pe/ayuda" target="_blank" rel="noopener">Ver ayuda</a>
+    </div>
+  </aside>
+
+  <div class="shell__main">
+    <header class="shell__topbar">
+      <div class="shell__search">
+        <mat-icon fontSet="material-symbols-outlined">search</mat-icon>
+        <input type="text" placeholder="Buscar cliente, venta, cuota..." />
+      </div>
+      <div class="shell__topbar-right">
+        <button mat-icon-button aria-label="Notificaciones">
+          <mat-icon fontSet="material-symbols-outlined">notifications</mat-icon>
+        </button>
+        <div class="shell__user">
+          <div class="shell__user-avatar">{{ initials(user()?.fullName) }}</div>
+          <div class="shell__user-info">
+            <span class="shell__user-name">{{ user()?.fullName }}</span>
+            <span class="shell__user-role">{{ user()?.role }}</span>
+          </div>
+        </div>
+        <button mat-icon-button (click)="signOut()" matTooltip="Cerrar sesión">
+          <mat-icon fontSet="material-symbols-outlined">logout</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <main class="shell__content">
+      <router-outlet />
+    </main>
+  </div>
+</div>
