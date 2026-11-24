@@ -25,7 +25,7 @@ export class AuthenticationApi {
     return this.http.post<SignInResponse>(`${this.endpoint}/sign-in`, { email, password } as SignInRequest).pipe(
       map((r) => new AuthenticatedUser(
         r.id, r.email,
-        r.fullName ?? `${r.firstName ?? ''} ${r.lastName ?? ''}`.trim() || r.email,
+        (r.fullName ?? `${r.firstName ?? ''} ${r.lastName ?? ''}`.trim()) || r.email,
         r.role, r.token, r.storeIds ?? [],
       )),
       catchError((e) => throwError(() => new Error(e?.error?.message ?? 'Credenciales inválidas'))),
