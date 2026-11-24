@@ -23,6 +23,9 @@ export class StoreManagementStore {
   private unitsSignal = signal<MeasurementUnit[]>([]);
   private loadingSignal = signal(false);
   private errorSignal = signal<string | null>(null);
+  // Pendiente #3 — progreso/error de upload de imagen
+  private uploadProgressSignal = signal<number | null>(null);
+  private uploadErrorSignal = signal<string | null>(null);
 
   readonly stores = this.storesSignal.asReadonly();
   readonly products = this.productsSignal.asReadonly();
@@ -30,6 +33,8 @@ export class StoreManagementStore {
   readonly units = this.unitsSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
+  readonly uploadProgress = this.uploadProgressSignal.asReadonly();
+  readonly uploadError = this.uploadErrorSignal.asReadonly();
 
   loadStores() {
     this.loadingSignal.set(true);
@@ -73,11 +78,25 @@ export class StoreManagementStore {
     });
   }
   uploadImage(id: number, file: File) {
-    this.productsEp.uploadImage(id, file).subscribe({
-      next: (x) => this.productsSignal.update((xs) => xs.map((y) => y.id === x.id ? x : y)),
-      error: (e: Error) => this.errorSignal.set(e.message),
+    // US-11 — pendiente #3: tracking de progreso + error explicito.
+    this.uploadErrorSignal.set(null);
+    this.uploadProgressSignal.set(0);
+    this.productsEp.uploadImageWithProgress(id, file).subscribe({
+      next: (ev) => {
+        this.uploadProgressSignal.set(ev.progress);
+        if (ev.done && ev.product) {
+          const updated = ev.product;
+          this.productsSignal.update((xs) => xs.map((y) => y.id === updated.id ? updated : y));
+          // mantenemos el 100 un instante para que la UI lo muestre; limpiar es responsabilidad del caller.
+        }
+      },
+      error: (e: Error) => {
+        this.uploadErrorSignal.set(e.message);
+        this.uploadProgressSignal.set(null);
+      },
     });
   }
+  clearUploadState() { this.uploadProgressSignal.set(null); this.uploadErrorSignal.set(null); }
 
   loadCatalogs() {
     forkJoin({ c: this.currenciesEp.getAll(), u: this.unitsEp.getAll() }).subscribe({
