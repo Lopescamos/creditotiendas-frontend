@@ -47,6 +47,13 @@ Tiendas (admin `SYSTEM_ADMIN`) y catálogo de productos (admin
 - US-13 — Administrar comercios (UF-02).
 - US-11 — Mantener catálogo (UF-09).
 
+## Tests
+
+- `application/store-management.store.spec.ts` — `loadStores` happy
+  path + error, `createStore` agrega al final, `updateStore` reemplaza
+  por id, `toggleStoreStatus` propaga `active`, y `loadProductsByStore`
+  pasa el `storeId` correcto al endpoint.
+
 ## Notas
 
 - La subida de imagen aún no tiene progreso ni manejo explícito de

@@ -36,6 +36,15 @@ de auditoría del backend.
 
 - US-16 — Consultar bitácora de operaciones (UF-04).
 
+## Tests
+
+- `application/audit.store.spec.ts`:
+  - Guard de API: verifica que el store NO expone `create/update/
+    delete/save/edit` — refuerza la regla "solo lectura" de US-16.
+  - `load()` sin filtros + happy path.
+  - `load()` reenvía todos los filtros combinados al endpoint.
+  - `load()` con error expone mensaje y apaga loading.
+
 ## Notas
 
 - Ningún otro BC consume `audit.store`: es terminal.

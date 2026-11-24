@@ -47,6 +47,17 @@ de cuenta mensuales.
 - US-05 — Registrar pagos y revisar mora (UF-10).
 - US-06 — Estados de cuenta al corte (UF-11, solo lectura).
 
+## Tests
+
+- `application/billing.store.spec.ts`:
+  - `loadPaymentDue` con `[]` limpia el `due` sin llamar al endpoint;
+    con ids guarda el desglose.
+  - `registerPayment` happy path (agrega pago, limpia due, apaga
+    loading) y error (conserva due, expone mensaje).
+  - **Regla crítica US-05:** test dedicado a `PaymentsApiEndpoint.register`
+    verifica que el body POST solo lleva `installmentIds` — nunca
+    `amount`, `monto` ni `total`.
+
 ## Notas
 
 - Pendiente #4: los triggers manuales de `BillingScheduler`
