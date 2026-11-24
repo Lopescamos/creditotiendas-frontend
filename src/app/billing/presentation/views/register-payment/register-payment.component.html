@@ -1,0 +1,40 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Confirmar pago</h1>
+    <p class="ct-page-subtitle">El servidor calcula el monto exigible desde las cuotas elegidas. Prelación: mora → interés → capital.</p>
+  </div>
+  <a mat-stroked-button routerLink="/app/store/payments">
+    <mat-icon fontSet="material-symbols-outlined">arrow_back</mat-icon> Volver
+  </a>
+</div>
+
+<div class="ct-card">
+  @if (!billing.due()) { <p class="ct-page-subtitle">Cargando desglose exigible…</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr><th>Cuota</th><th>Vence</th><th>Días atraso</th><th>Capital</th><th>Interés</th><th>Mora</th><th>Total</th></tr></thead>
+      <tbody>
+        @for (i of billing.due()!.items; track i.installmentId) {
+          <tr>
+            <td>{{ i.installmentNumber }}</td>
+            <td>{{ i.dueDate | date:'mediumDate' }}</td>
+            <td>{{ i.daysOverdue }}</td>
+            <td>S/ {{ i.capital | number:'1.2-2' }}</td>
+            <td>S/ {{ i.interest | number:'1.2-2' }}</td>
+            <td>S/ {{ i.lateFee | number:'1.2-2' }}</td>
+            <td><strong>S/ {{ i.total | number:'1.2-2' }}</strong></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--ct-border);">
+      <div>
+        <div class="ct-kpi__label">Monto exigible total</div>
+        <div class="ct-kpi__value">S/ {{ total() | number:'1.2-2' }}</div>
+      </div>
+      <button mat-flat-button class="btn-primary" (click)="confirm()" [disabled]="billing.loading()">Confirmar pago</button>
+    </div>
+  }
+</div>
+<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>
