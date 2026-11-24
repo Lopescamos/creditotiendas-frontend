@@ -1,0 +1,60 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Bitácora de operaciones</h1>
+    <p class="ct-page-subtitle">Append-only. Toda acción CRUD y todo login quedan registrados automáticamente por el aspecto de AOP.</p>
+  </div>
+</div>
+
+<div class="ct-card" style="margin-bottom: 14px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto auto; gap: 12px; align-items: end;">
+    <mat-form-field appearance="outline">
+      <mat-label>User ID</mat-label>
+      <input matInput type="number" [ngModel]="filter().userId"
+             (ngModelChange)="update('userId', $event ? +$event : undefined)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Acción</mat-label>
+      <mat-select [ngModel]="filter().action" (ngModelChange)="update('action', $event)">
+        <mat-option [value]="undefined">Todas</mat-option>
+        @for (a of actions; track a) { <mat-option [value]="a">{{ a }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Entidad</mat-label>
+      <input matInput [ngModel]="filter().entity" (ngModelChange)="update('entity', $event)" placeholder="Product, User, CreditSale..." />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [ngModel]="filter().from" (ngModelChange)="update('from', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [ngModel]="filter().to" (ngModelChange)="update('to', $event)" />
+    </mat-form-field>
+    <button mat-flat-button class="btn-primary" (click)="apply()">Aplicar</button>
+    <button mat-stroked-button (click)="reset()">Limpiar</button>
+  </div>
+</div>
+
+<div class="ct-card">
+  @if (store.loading()) { <p class="ct-page-subtitle">Cargando bitácora…</p> }
+  @else if (store.logs().length === 0) { <p class="ct-page-subtitle">Sin registros con estos filtros.</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th><th>IP</th></tr></thead>
+      <tbody>
+        @for (l of store.logs(); track l.id) {
+          <tr>
+            <td>{{ l.occurredAt | date:'short' }}</td>
+            <td>{{ l.userId ?? '—' }}</td>
+            <td><span [class]="actionBadge(l.action)">{{ l.action }}</span></td>
+            <td>{{ l.entity }}{{ l.entityId ? ' #' + l.entityId : '' }}</td>
+            <td>{{ l.detail }}</td>
+            <td>{{ l.ipAddress ?? '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>
