@@ -33,6 +33,16 @@
         <input type="text" placeholder="Buscar cliente, venta, cuota..." />
       </div>
       <div class="shell__topbar-right">
+        @if (showStoreSelector()) {
+          <mat-form-field appearance="outline" class="shell__store-selector" subscriptSizing="dynamic">
+            <mat-label>Tienda activa</mat-label>
+            <mat-select [ngModel]="auth.activeStoreId()" (ngModelChange)="onStoreChange($event)">
+              @for (sid of auth.availableStoreIds(); track sid) {
+                <mat-option [value]="sid">Tienda #{{ sid }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
         <button mat-icon-button aria-label="Notificaciones">
           <mat-icon fontSet="material-symbols-outlined">notifications</mat-icon>
         </button>
