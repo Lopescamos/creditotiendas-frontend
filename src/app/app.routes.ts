@@ -25,7 +25,56 @@ export const routes: Routes = [
         path: 'store',
         canActivate: [roleGuard([UserRole.StoreAdmin])],
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'products' },
+          { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+          {
+            path: 'dashboard',
+            loadComponent: () =>
+              import('./credit-management/presentation/views/store-dashboard/store-dashboard.component').then(
+                (m) => m.StoreDashboardComponent,
+              ),
+          },
+          {
+            path: 'credit-profiles',
+            loadComponent: () =>
+              import('./credit-management/presentation/views/credit-profiles-list/credit-profiles-list.component').then(
+                (m) => m.CreditProfilesListComponent,
+              ),
+          },
+          {
+            path: 'credit-profiles/new',
+            loadComponent: () =>
+              import('./credit-management/presentation/views/credit-profile-form/credit-profile-form.component').then(
+                (m) => m.CreditProfileFormComponent,
+              ),
+          },
+          {
+            path: 'credit-profiles/:id/edit',
+            loadComponent: () =>
+              import('./credit-management/presentation/views/credit-profile-form/credit-profile-form.component').then(
+                (m) => m.CreditProfileFormComponent,
+              ),
+          },
+          {
+            path: 'credit-sales',
+            loadComponent: () =>
+              import('./credit-management/presentation/views/credit-sales-list/credit-sales-list.component').then(
+                (m) => m.CreditSalesListComponent,
+              ),
+          },
+          {
+            path: 'credit-sales/new',
+            loadComponent: () =>
+              import('./credit-management/presentation/views/credit-sale-wizard/credit-sale-wizard.component').then(
+                (m) => m.CreditSaleWizardComponent,
+              ),
+          },
+          {
+            path: 'purchase-requests',
+            loadComponent: () =>
+              import('./credit-management/presentation/views/purchase-requests-inbox/purchase-requests-inbox.component').then(
+                (m) => m.PurchaseRequestsInboxComponent,
+              ),
+          },
           {
             path: 'products',
             loadComponent: () =>

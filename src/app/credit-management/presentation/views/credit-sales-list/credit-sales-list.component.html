@@ -1,0 +1,50 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Ventas a crédito</h1>
+    <p class="ct-page-subtitle">Historial de ventas con cronograma y snapshot de tasas.</p>
+  </div>
+  <a mat-flat-button routerLink="/app/store/credit-sales/new" class="btn-primary">
+    <mat-icon fontSet="material-symbols-outlined">add</mat-icon> Nueva venta
+  </a>
+</div>
+
+<div class="ct-card" style="margin-bottom: 14px;">
+  <mat-form-field appearance="outline" style="max-width: 420px; margin: 0;">
+    <mat-label>Filtrar por cliente</mat-label>
+    <mat-select [ngModel]="selectedProfileId()" (ngModelChange)="onProfileChange($event)">
+      @for (p of credit.profiles(); track p.id) {
+        <mat-option [value]="p.id">{{ p.clientFullName }} · {{ p.clientDocument }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div class="ct-card">
+  @if (!selectedProfileId()) { <p class="ct-page-subtitle">Selecciona un cliente para ver sus ventas.</p> }
+  @else if (credit.loading()) { <p class="ct-page-subtitle">Cargando ventas…</p> }
+  @else if (credit.sales().length === 0) { <p class="ct-page-subtitle">Este cliente no tiene ventas a crédito registradas.</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr><th>#</th><th>Fecha</th><th>Total</th><th>Cuotas</th><th>Modalidad</th><th>Tasa</th><th>Estado</th></tr></thead>
+      <tbody>
+        @for (s of credit.sales(); track s.id) {
+          <tr>
+            <td>#{{ s.id }}</td>
+            <td>{{ s.saleDate | date:'mediumDate' }}</td>
+            <td>S/ {{ s.totalAmount | number:'1.2-2' }}</td>
+            <td>{{ s.installmentCount }}</td>
+            <td>{{ s.modality === 'SINGLE_PAYMENT' ? 'Pago único' : 'Cuotas' }}</td>
+            <td>{{ s.interestRateSnapshot | number:'1.2-4' }}% {{ s.interestRateTypeSnapshot }}</td>
+            <td>
+              @if (s.status === 'ACTIVE') { <span class="ct-badge ct-badge--warning">Activa</span> }
+              @else if (s.status === 'OVERDUE') { <span class="ct-badge ct-badge--danger">Vencida</span> }
+              @else if (s.status === 'PAID_ON_TIME') { <span class="ct-badge ct-badge--success">Pagada</span> }
+              @else if (s.status === 'PAID_LATE') { <span class="ct-badge ct-badge--warning">Pagada tarde</span> }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>
