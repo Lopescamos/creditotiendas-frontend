@@ -56,11 +56,30 @@
   @if (editing) {
     <label style="font-size: 13px; color: var(--ct-text-muted); margin-top: 6px;">Imagen (JPEG/PNG/WebP, máx. 5 MB)</label>
     <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)" />
+
+    @if (fileTooLarge()) {
+      <p class="ct-form-error">
+        El archivo supera los 5 MB — Cloudinary rechazara la subida. Elige una imagen mas liviana.
+      </p>
+    }
+    @if (store.uploadProgress() != null) {
+      <div class="ct-upload-progress">
+        <mat-progress-bar mode="determinate" [value]="store.uploadProgress()"></mat-progress-bar>
+        <span>{{ store.uploadProgress() }}% — {{ store.uploadProgress() === 100 ? 'Procesando en Cloudinary...' : 'Subiendo...' }}</span>
+      </div>
+    }
+    @if (store.uploadError()) {
+      <p class="ct-form-error">{{ store.uploadError() }}</p>
+    }
   }
 
   <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
     <a mat-stroked-button routerLink="/app/store/products">Cancelar</a>
-    <button mat-flat-button type="submit" class="btn-primary" [disabled]="form.invalid">Guardar</button>
+    <button mat-flat-button type="submit" class="btn-primary" [disabled]="form.invalid || fileTooLarge()">Guardar</button>
   </div>
 </form>
-<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>
+<style>
+  .btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }
+  .ct-form-error { color: #b42318; font-size: 13px; margin: 6px 0 0; }
+  .ct-upload-progress { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; font-size: 12px; color: var(--ct-text-muted, #475467); }
+</style>

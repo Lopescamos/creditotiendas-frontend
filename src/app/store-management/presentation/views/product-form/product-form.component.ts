@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -7,17 +7,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AuthStore } from '../../../../iam/application/auth.store';
 import { StoreManagementStore } from '../../../application/store-management.store';
 import { Product, ProductType } from '../../../domain/model/product.entity';
 
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;  // backend valida tambien, pero avisamos antes.
+
 @Component({
   selector: 'app-product-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatProgressBarModule],
   templateUrl: './product-form.component.html',
 })
-export class ProductFormComponent implements OnInit {
+export class ProductFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -26,7 +29,11 @@ export class ProductFormComponent implements OnInit {
 
   protected editing = false;
   protected editingId: number | null = null;
-  protected selectedFile: File | null = null;
+  protected selectedFileSignal = signal<File | null>(null);
+  protected fileTooLarge = computed(() => {
+    const f = this.selectedFileSignal();
+    return f != null && f.size > MAX_IMAGE_BYTES;
+  });
 
   readonly types = Object.values(ProductType);
 
@@ -56,11 +63,12 @@ export class ProductFormComponent implements OnInit {
 
   onFileSelected(e: Event) {
     const f = (e.target as HTMLInputElement).files?.[0] ?? null;
-    this.selectedFile = f;
+    this.selectedFileSignal.set(f);
+    this.store.clearUploadState();
   }
 
   save() {
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.fileTooLarge()) return;
     const storeId = this.auth.activeStoreId();
     if (!storeId) return;
     const v = this.form.getRawValue();
@@ -68,7 +76,15 @@ export class ProductFormComponent implements OnInit {
       v.type as ProductType, v.supplier, v.brand, v.measurementUnitId,
       v.cashPrice, v.creditPrice, null, true);
     if (this.editing) this.store.updateProduct(p); else this.store.createProduct(storeId, p);
-    if (this.selectedFile && this.editingId) this.store.uploadImage(this.editingId, this.selectedFile);
+    const file = this.selectedFileSignal();
+    if (file && this.editingId) {
+      // Pendiente #3: no navegamos hasta que el upload termine, para que la UI
+      // pueda mostrar la barra. Al ver done=100%, el usuario sabe que termino.
+      this.store.uploadImage(this.editingId, file);
+      return;
+    }
     this.router.navigate(['/app/store/products']);
   }
+
+  ngOnDestroy() { this.store.clearUploadState(); }
 }
