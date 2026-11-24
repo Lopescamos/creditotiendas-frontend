@@ -1,0 +1,31 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Usuarios y roles</h1>
+    <p class="ct-page-subtitle">Admin Sistema puede crear admins de tienda y clientes. El admin tienda registra a sus propios clientes.</p>
+  </div>
+  <a mat-flat-button routerLink="/app/system/users/new" class="btn-primary">
+    <mat-icon fontSet="material-symbols-outlined">add</mat-icon> Nuevo usuario
+  </a>
+</div>
+
+<div class="ct-card">
+  @if (store.loading()) { <p class="ct-page-subtitle">Cargando usuarios…</p> }
+  @else if (store.users().length === 0) { <p class="ct-page-subtitle">Sin usuarios registrados.</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Tiendas</th><th>Activo</th></tr></thead>
+      <tbody>
+        @for (u of store.users(); track u.id) {
+          <tr>
+            <td>{{ u.fullName }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ roleLabel(u.role) }}</td>
+            <td>{{ u.storeIds.length > 0 ? u.storeIds.join(', ') : '—' }}</td>
+            <td><mat-slide-toggle [checked]="u.active" (change)="toggle(u.id, $event.checked)"></mat-slide-toggle></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>
