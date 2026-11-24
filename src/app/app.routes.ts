@@ -161,6 +161,13 @@ export const routes: Routes = [
                 (m) => m.UserFormComponent,
               ),
           },
+          {
+            path: 'operation-logs',
+            loadComponent: () =>
+              import('./audit/presentation/views/operation-logs/operation-logs.component').then(
+                (m) => m.OperationLogsComponent,
+              ),
+          },
         ],
       },
     ],
