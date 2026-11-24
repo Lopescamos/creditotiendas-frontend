@@ -1,0 +1,62 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Solicitudes de compra a crédito</h1>
+    <p class="ct-page-subtitle">Solicitudes enviadas por clientes elegibles desde la app. Al aprobar, se genera la venta automáticamente.</p>
+  </div>
+  <mat-form-field appearance="outline" style="max-width: 220px; margin: 0;">
+    <mat-label>Filtro</mat-label>
+    <mat-select [ngModel]="statusFilter()" (ngModelChange)="onFilterChange($event)">
+      <mat-option value="PENDING">Pendientes</mat-option>
+      <mat-option value="APPROVED">Aprobadas</mat-option>
+      <mat-option value="REJECTED">Rechazadas</mat-option>
+      <mat-option value="">Todas</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div class="ct-card">
+  @if (credit.loading()) { <p class="ct-page-subtitle">Cargando solicitudes…</p> }
+  @else if (credit.requests().length === 0) { <p class="ct-page-subtitle">No hay solicitudes con este filtro.</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr><th>#</th><th>Cliente</th><th>Items</th><th>Total</th><th>Solicitada</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        @for (r of credit.requests(); track r.id) {
+          <tr>
+            <td>#{{ r.id }}</td>
+            <td>Perfil {{ r.creditProfileId }}</td>
+            <td>{{ r.items.length }}</td>
+            <td>S/ {{ r.totalAmount | number:'1.2-2' }}</td>
+            <td>{{ r.requestedAt | date:'short' }}</td>
+            <td>
+              @if (r.status === 'PENDING') { <span class="ct-badge ct-badge--warning">Pendiente</span> }
+              @else if (r.status === 'APPROVED') {
+                <span class="ct-badge ct-badge--success">Aprobada</span>
+                @if (r.generatedSaleId) { <span style="font-size:12px;color:var(--ct-text-muted);"> → Venta #{{ r.generatedSaleId }}</span> }
+              }
+              @else if (r.status === 'REJECTED') {
+                <span class="ct-badge ct-badge--danger">Rechazada</span>
+                @if (r.rejectionReason) { <div style="font-size:12px;color:var(--ct-text-muted);margin-top:4px;">{{ r.rejectionReason }}</div> }
+              }
+            </td>
+            <td>
+              @if (r.status === 'PENDING') {
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                  <mat-icon fontSet="material-symbols-outlined">more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="approve(r.id)">
+                    <mat-icon fontSet="material-symbols-outlined">check</mat-icon> Aprobar (genera venta)
+                  </button>
+                  <button mat-menu-item (click)="reject(r.id)">
+                    <mat-icon fontSet="material-symbols-outlined">close</mat-icon> Rechazar
+                  </button>
+                </mat-menu>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

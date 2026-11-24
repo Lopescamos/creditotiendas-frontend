@@ -1,0 +1,44 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Clientes y condiciones</h1>
+    <p class="ct-page-subtitle">Perfiles de crédito registrados en tu tienda.</p>
+  </div>
+  <a mat-flat-button routerLink="/app/store/credit-profiles/new" class="btn-primary">
+    <mat-icon fontSet="material-symbols-outlined">add</mat-icon> Nuevo cliente
+  </a>
+</div>
+
+<div class="ct-card">
+  @if (store.loading()) { <p class="ct-page-subtitle">Cargando clientes…</p> }
+  @else if (store.profiles().length === 0) { <p class="ct-page-subtitle">Aún no hay clientes con perfil crediticio en tu tienda.</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr>
+        <th>Cliente</th><th>Documento</th><th>Línea</th><th>Disponible</th><th>Uso</th><th>Tasa</th><th>Estado</th><th></th>
+      </tr></thead>
+      <tbody>
+        @for (p of store.profiles(); track p.id) {
+          <tr>
+            <td>{{ p.clientFullName }}</td>
+            <td>{{ p.clientDocument }}</td>
+            <td>S/ {{ p.creditLimit | number:'1.2-2' }}</td>
+            <td>S/ {{ p.availableCredit | number:'1.2-2' }}</td>
+            <td>{{ usage(p) }}%</td>
+            <td>{{ p.interestRate | number:'1.2-4' }}% {{ p.interestRateType }}</td>
+            <td>
+              @if (p.status === 'ACTIVE') { <span class="ct-badge ct-badge--success">Activo</span> }
+              @else if (p.status === 'SUSPENDED') { <span class="ct-badge ct-badge--warning">Suspendido</span> }
+              @else if (p.status === 'BLOCKED') { <span class="ct-badge ct-badge--danger">Bloqueado</span> }
+              @else { <span class="ct-badge ct-badge--neutral">{{ p.status }}</span> }
+            </td>
+            <td>
+              <a mat-icon-button [routerLink]="['/app/store/credit-profiles', p.id, 'edit']">
+                <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

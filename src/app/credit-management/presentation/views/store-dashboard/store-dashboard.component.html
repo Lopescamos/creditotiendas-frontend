@@ -1,0 +1,125 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Inicio</h1>
+    <p class="ct-page-subtitle">Aquí tienes una vista clara de la cobranza y los pagos de tu negocio.</p>
+  </div>
+</div>
+
+<!-- KPIs US-01 -->
+<section class="ct-grid ct-grid--kpis" style="margin-bottom: 18px;">
+  <div class="ct-card ct-card--dark ct-kpi">
+    <span class="ct-kpi__dot"></span>
+    <span class="ct-kpi__label">Total por cobrar</span>
+    <span class="ct-kpi__value">S/ {{ totalByCollect() | number:'1.2-2' }}</span>
+    <span class="ct-kpi__hint">{{ credit.profiles().length }} clientes con saldo pendiente</span>
+  </div>
+  <div class="ct-card ct-kpi">
+    <span class="ct-kpi__dot"></span>
+    <span class="ct-kpi__label">Cobrado este mes</span>
+    <span class="ct-kpi__value">S/ —</span>
+    <span class="ct-kpi__hint">Consulta tus pagos registrados</span>
+  </div>
+  <div class="ct-card ct-kpi">
+    <span class="ct-kpi__dot" [class.ct-kpi__dot--danger]="overdueCount() > 0"></span>
+    <span class="ct-kpi__label">En mora</span>
+    <span class="ct-kpi__value">S/ {{ overdueAmount() | number:'1.2-2' }}</span>
+    <span class="ct-kpi__hint">{{ overdueCount() }} cuentas requieren seguimiento</span>
+  </div>
+</section>
+
+<section class="dash-row">
+  <!-- Cobranza mensual -->
+  <div class="ct-card dash-col-lg">
+    <div class="dash-head">
+      <div>
+        <h3 class="ct-section-title">Cobranza mensual</h3>
+        <p class="ct-page-subtitle" style="font-size:12.5px;">Montos cobrados y pendientes · últimos 12 meses</p>
+      </div>
+    </div>
+    <div class="ct-bars-wrap">
+      <div class="ct-bars-wrap__legend">
+        <span><span class="dot" style="background: var(--ct-accent);"></span>Cobrado</span>
+        <span><span class="dot" style="background: var(--ct-primary);"></span>Pendiente</span>
+      </div>
+      <div class="ct-bars">
+        @for (m of months; track m.label) {
+          <div class="ct-bar-group">
+            <div class="ct-bar ct-bar--paid" [style.height.px]="barHeight(m.paid)"></div>
+            <div class="ct-bar ct-bar--pending" [style.height.px]="barHeight(m.pending)"></div>
+          </div>
+        }
+      </div>
+      <div style="display: flex; gap: 10px; padding: 0 4px; margin-top: 4px;">
+        @for (m of months; track m.label) {
+          <div class="ct-bar-group__label" style="flex: 1;">{{ m.label }}</div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado de cuentas -->
+  <div class="ct-card dash-col-sm">
+    <div class="dash-head">
+      <h3 class="ct-section-title">Estado de cuentas</h3>
+      <p class="ct-page-subtitle" style="font-size:12.5px;">Por estado de pago</p>
+    </div>
+    <div class="ct-card ct-card--dark" style="margin-top: 10px; padding: 16px 18px;">
+      <span class="ct-kpi__label">Saldo total pendiente</span>
+      <div class="ct-kpi__value" style="margin-top: 4px;">S/ {{ totalByCollect() | number:'1.2-2' }}</div>
+    </div>
+    <ul class="dash-breakdown">
+      @for (b of accountsBreakdown(); track b.key) {
+        <li>
+          <span class="dash-breakdown__left">
+            <span class="dot" [class.dot--success]="b.dot==='success'"
+                              [class.dot--warning]="b.dot==='warning'"
+                              [class.dot--danger]="b.dot==='danger'"></span>
+            {{ b.key }}
+          </span>
+          <span class="dash-breakdown__pct">{{ b.pct }}%</span>
+          <span class="dash-breakdown__amt">S/ {{ b.amount | number:'1.2-2' }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Movimientos recientes -->
+<section class="ct-card" style="margin-top: 18px;">
+  <div class="dash-head" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3 class="ct-section-title">Movimientos recientes</h3>
+      <p class="ct-page-subtitle" style="font-size:12.5px;">Compras a crédito y pagos registrados</p>
+    </div>
+    <a mat-flat-button color="primary" routerLink="/app/store/credit-sales/new" class="btn-primary">
+      Registrar venta a crédito
+    </a>
+  </div>
+
+  @if (billing.loading()) {
+    <p class="ct-page-subtitle">Cargando movimientos…</p>
+  } @else if (billing.dueByStore().length === 0) {
+    <p class="ct-page-subtitle">Aún no hay movimientos registrados en tu tienda.</p>
+  } @else {
+    <table class="ct-table" style="margin-top: 8px;">
+      <thead>
+        <tr><th>Cuota</th><th>Vencimiento</th><th>Monto</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        @for (i of billing.dueByStore() | slice:0:8; track i.id) {
+          <tr>
+            <td>Venta #{{ i.creditSaleId }} · cuota {{ i.installmentNumber }}</td>
+            <td>{{ i.dueDate | date:'mediumDate' }}</td>
+            <td><strong>S/ {{ i.installmentAmount | number:'1.2-2' }}</strong></td>
+            <td>
+              @if (i.status === 'OVERDUE') { <span class="ct-badge ct-badge--danger">Vencida</span> }
+              @else if (i.status === 'PENDING') { <span class="ct-badge ct-badge--warning">Por vencer</span> }
+              @else if (i.status === 'PAID_ON_TIME') { <span class="ct-badge ct-badge--success">Pagada</span> }
+              @else if (i.status === 'PAID_LATE') { <span class="ct-badge ct-badge--warning">Pagada tarde</span> }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
