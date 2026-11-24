@@ -18,14 +18,65 @@ export const routes: Routes = [
         (m) => m.AppShellComponent,
       ),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'system/users' },
+      { path: '', pathMatch: 'full', redirectTo: 'store/dashboard' },
+
+      // ========== STORE_ADMIN (comercio) ==========
+      {
+        path: 'store',
+        canActivate: [roleGuard([UserRole.StoreAdmin])],
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'products' },
+          {
+            path: 'products',
+            loadComponent: () =>
+              import('./store-management/presentation/views/products-list/products-list.component').then(
+                (m) => m.ProductsListComponent,
+              ),
+          },
+          {
+            path: 'products/new',
+            loadComponent: () =>
+              import('./store-management/presentation/views/product-form/product-form.component').then(
+                (m) => m.ProductFormComponent,
+              ),
+          },
+          {
+            path: 'products/:id/edit',
+            loadComponent: () =>
+              import('./store-management/presentation/views/product-form/product-form.component').then(
+                (m) => m.ProductFormComponent,
+              ),
+          },
+        ],
+      },
 
       // ========== SYSTEM_ADMIN (plataforma) ==========
       {
         path: 'system',
         canActivate: [roleGuard([UserRole.SystemAdmin])],
         children: [
-          { path: '', pathMatch: 'full', redirectTo: 'users' },
+          { path: '', pathMatch: 'full', redirectTo: 'stores' },
+          {
+            path: 'stores',
+            loadComponent: () =>
+              import('./store-management/presentation/views/stores-list/stores-list.component').then(
+                (m) => m.StoresListComponent,
+              ),
+          },
+          {
+            path: 'stores/new',
+            loadComponent: () =>
+              import('./store-management/presentation/views/store-form/store-form.component').then(
+                (m) => m.StoreFormComponent,
+              ),
+          },
+          {
+            path: 'stores/:id/edit',
+            loadComponent: () =>
+              import('./store-management/presentation/views/store-form/store-form.component').then(
+                (m) => m.StoreFormComponent,
+              ),
+          },
           {
             path: 'users',
             loadComponent: () =>
