@@ -169,6 +169,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'billing-jobs',
+            loadComponent: () =>
+              import('./billing/presentation/views/billing-jobs/billing-jobs.component').then(
+                (m) => m.BillingJobsComponent,
+              ),
+          },
+          {
             path: 'operation-logs',
             loadComponent: () =>
               import('./audit/presentation/views/operation-logs/operation-logs.component').then(

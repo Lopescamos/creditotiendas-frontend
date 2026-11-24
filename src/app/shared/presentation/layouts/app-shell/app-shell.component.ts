@@ -37,9 +37,10 @@ export class AppShellComponent {
   readonly items = computed<NavItem[]>(() => {
     if (this.user()?.role === UserRole.SystemAdmin) {
       return [
-        { label: 'Comercios',  initial: 'C', route: '/app/system/stores' },
-        { label: 'Usuarios',   initial: 'U', route: '/app/system/users' },
-        { label: 'Bitácora',   initial: 'B', route: '/app/system/operation-logs' },
+        { label: 'Comercios',           initial: 'C', route: '/app/system/stores' },
+        { label: 'Usuarios',            initial: 'U', route: '/app/system/users' },
+        { label: 'Jobs de facturación', initial: 'J', route: '/app/system/billing-jobs' },
+        { label: 'Bitácora',            initial: 'B', route: '/app/system/operation-logs' },
       ];
     }
     return [
