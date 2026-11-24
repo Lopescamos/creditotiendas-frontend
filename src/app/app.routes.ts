@@ -69,6 +69,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'credit-sales/:id',
+            loadComponent: () =>
+              import('./credit-management/presentation/views/credit-sale-detail/credit-sale-detail.component').then(
+                (m) => m.CreditSaleDetailComponent,
+              ),
+          },
+          {
             path: 'purchase-requests',
             loadComponent: () =>
               import('./credit-management/presentation/views/purchase-requests-inbox/purchase-requests-inbox.component').then(
