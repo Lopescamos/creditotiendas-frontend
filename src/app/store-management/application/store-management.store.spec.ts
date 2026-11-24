@@ -22,6 +22,7 @@ function newStore(partial: Partial<Store> = {}): Store {
 }
 
 describe('StoreManagementStore', () => {
+  afterEach(() => vi.restoreAllMocks());
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -98,5 +99,59 @@ describe('StoreManagementStore', () => {
     const store = TestBed.inject(StoreManagementStore);
     store.loadProductsByStore(42);
     expect(spy).toHaveBeenCalledWith(42);
+  });
+});
+
+describe('StoreManagementStore - pendiente #3: upload con progreso', () => {
+  afterEach(() => vi.restoreAllMocks());
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        StoreManagementStore,
+        { provide: HttpClient, useValue: anHttp },
+      ],
+    });
+  });
+
+  it('uploadImage() refleja el progreso del endpoint en uploadProgress()', () => {
+    const progressValues: Array<number | null> = [];
+    vi.spyOn(ProductsApiEndpoint.prototype, 'uploadImageWithProgress').mockReturnValue(
+      of(
+        { kind: 'progress' as const, progress: 25, product: null, done: false },
+        { kind: 'progress' as const, progress: 75, product: null, done: false },
+        { kind: 'done'     as const, progress: 100, product: null, done: true },
+      ),
+    );
+    const store = TestBed.inject(StoreManagementStore);
+    // Suscribirse a los cambios via sampling con effect seria mas elegante,
+    // pero basta con comprobar el estado final: el ultimo valor publicado es 100.
+    store.uploadImage(5, new File(['x'], 'x.png'));
+    expect(store.uploadProgress()).toBe(100);
+    expect(store.uploadError()).toBeNull();
+    progressValues.push(store.uploadProgress());  // sanity
+    expect(progressValues).toContain(100);
+  });
+
+  it('uploadImage() con error limpia el progreso y guarda el mensaje', () => {
+    vi.spyOn(ProductsApiEndpoint.prototype, 'uploadImageWithProgress').mockReturnValue(
+      throwError(() => new Error('Archivo demasiado grande')),
+    );
+    const store = TestBed.inject(StoreManagementStore);
+    store.uploadImage(5, new File(['x'], 'x.png'));
+    expect(store.uploadError()).toBe('Archivo demasiado grande');
+    expect(store.uploadProgress()).toBeNull();
+  });
+
+  it('clearUploadState() reinicia progreso y error a null', () => {
+    vi.spyOn(ProductsApiEndpoint.prototype, 'uploadImageWithProgress').mockReturnValue(
+      throwError(() => new Error('x')),
+    );
+    const store = TestBed.inject(StoreManagementStore);
+    store.uploadImage(5, new File(['x'], 'x.png'));
+    expect(store.uploadError()).not.toBeNull();
+
+    store.clearUploadState();
+    expect(store.uploadProgress()).toBeNull();
+    expect(store.uploadError()).toBeNull();
   });
 });
