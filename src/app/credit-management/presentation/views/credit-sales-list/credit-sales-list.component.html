@@ -29,7 +29,7 @@
       <tbody>
         @for (s of credit.sales(); track s.id) {
           <tr>
-            <td>#{{ s.id }}</td>
+            <td><a [routerLink]="['/app/store/credit-sales', s.id]">#{{ s.id }}</a></td>
             <td>{{ s.saleDate | date:'mediumDate' }}</td>
             <td>S/ {{ s.totalAmount | number:'1.2-2' }}</td>
             <td>{{ s.installmentCount }}</td>

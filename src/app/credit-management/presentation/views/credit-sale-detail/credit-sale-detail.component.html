@@ -1,0 +1,70 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Detalle de venta #{{ id }}</h1>
+    <p class="ct-page-subtitle">Cronograma congelado al registrar la venta (snapshot) y estado actual por cuota.</p>
+  </div>
+  <a mat-flat-button routerLink="/app/store/credit-sales" class="btn-plain">
+    <mat-icon fontSet="material-symbols-outlined">arrow_back</mat-icon> Volver al listado
+  </a>
+</div>
+
+@if (credit.loading()) {
+  <div class="ct-card"><p class="ct-page-subtitle">Cargando venta...</p></div>
+} @else if (!credit.selectedSale()) {
+  <div class="ct-card"><p class="ct-page-subtitle">No se encontro la venta.</p></div>
+} @else {
+  <div class="ct-card">
+    <div class="ct-kpi-row">
+      <div class="ct-kpi"><span class="label">Total</span><strong>S/ {{ credit.selectedSale()!.totalAmount | number:'1.2-2' }}</strong></div>
+      <div class="ct-kpi"><span class="label">Cuotas</span><strong>{{ credit.selectedSale()!.installmentCount }}</strong></div>
+      <div class="ct-kpi"><span class="label">Modalidad</span><strong>{{ credit.selectedSale()!.modality === 'SINGLE_PAYMENT' ? 'Pago unico' : 'Cuotas (frances)' }}</strong></div>
+      <div class="ct-kpi"><span class="label">Fecha</span><strong>{{ credit.selectedSale()!.saleDate | date:'mediumDate' }}</strong></div>
+    </div>
+
+    <h3 style="margin-top: 18px;">Snapshot de tasas (no cambia si editas el perfil)</h3>
+    <ul class="ct-plain-list">
+      <li>Tasa de interes: <strong>{{ credit.selectedSale()!.interestRateSnapshot | number:'1.2-7' }}%</strong> ({{ credit.selectedSale()!.interestRateTypeSnapshot }})</li>
+      @if (credit.selectedSale()!.capitalizationPeriodSnapshot) {
+        <li>Capitalizacion: <strong>{{ credit.selectedSale()!.capitalizationPeriodSnapshot }}</strong></li>
+      }
+      <li>Tasa moratoria: <strong>{{ credit.selectedSale()!.lateInterestRateSnapshot | number:'1.2-7' }}%</strong> ({{ credit.selectedSale()!.lateInterestRateTypeSnapshot }})</li>
+    </ul>
+  </div>
+
+  <div class="ct-card" style="margin-top: 14px;">
+    <h3>Cronograma</h3>
+    @if (rows().length === 0) {
+      <p class="ct-page-subtitle">Cargando cronograma...</p>
+    } @else {
+      <table class="ct-table">
+        <thead><tr><th>#</th><th>Vencimiento</th><th>Capital</th><th>Interes</th><th>Cuota</th><th>Saldo</th><th>Estado</th></tr></thead>
+        <tbody>
+          @for (r of rows(); track r.number) {
+            <tr>
+              <td>{{ r.number }}</td>
+              <td>{{ r.dueDate | date:'mediumDate' }}</td>
+              <td>S/ {{ r.principal | number:'1.2-2' }}</td>
+              <td>S/ {{ r.interest | number:'1.2-2' }}</td>
+              <td>S/ {{ r.installment | number:'1.2-2' }}</td>
+              <td>S/ {{ r.remainingBalance | number:'1.2-2' }}</td>
+              <td>
+                @if (!r.status) { <span class="ct-badge">—</span> }
+                @else if (r.status === 'PENDING') { <span class="ct-badge ct-badge--warning">Pendiente</span> }
+                @else if (r.status === 'OVERDUE') { <span class="ct-badge ct-badge--danger">Vencida</span> }
+                @else if (r.status === 'PAID_ON_TIME') { <span class="ct-badge ct-badge--success">Pagada</span> }
+                @else if (r.status === 'PAID_LATE') { <span class="ct-badge ct-badge--warning">Pagada tarde</span> }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+}
+
+<style>
+  .btn-plain { border: 1px solid var(--ct-border, #d7dce4); }
+  .ct-kpi-row { display: flex; gap: 18px; flex-wrap: wrap; }
+  .ct-kpi .label { display: block; font-size: 12px; color: #6b7280; }
+  .ct-plain-list { margin: 0; padding-left: 18px; }
+</style>
