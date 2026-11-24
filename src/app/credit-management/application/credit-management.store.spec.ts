@@ -34,6 +34,7 @@ const payload: RegisterCreditSalePayload = {
 };
 
 describe('CreditManagementStore - flujo de simulacion / registro', () => {
+  afterEach(() => vi.restoreAllMocks());
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -113,6 +114,7 @@ describe('CreditManagementStore - flujo de simulacion / registro', () => {
 });
 
 describe('CreditManagementStore - solicitudes de compra', () => {
+  afterEach(() => vi.restoreAllMocks());
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -151,5 +153,65 @@ describe('CreditManagementStore - solicitudes de compra', () => {
 
     expect(spy).toHaveBeenCalledWith(5, 'cliente sin elegibilidad');
     expect(store.requests()[0].status).toBe('REJECTED');
+  });
+});
+
+describe('CreditManagementStore - US-07 panel web (pendiente #2 completado)', () => {
+  afterEach(() => vi.restoreAllMocks());
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        CreditManagementStore,
+        { provide: HttpClient, useValue: anHttp },
+      ],
+    });
+  });
+
+  it('loadSale() guarda la venta en selectedSale() y apaga loading', () => {
+    const sale = aSale(123);
+    vi.spyOn(CreditSalesApiEndpoint.prototype, 'get').mockReturnValue(of(sale));
+
+    const store = TestBed.inject(CreditManagementStore);
+    store.loadSale(123);
+
+    expect(store.selectedSale()).toEqual(sale);
+    expect(store.loading()).toBe(false);
+  });
+
+  it('loadSale() resetea cualquier payment-plan previo (evita mostrar uno viejo)', () => {
+    const plan = aPlan();
+    vi.spyOn(CreditSalesApiEndpoint.prototype, 'paymentPlan').mockReturnValue(of(plan));
+    vi.spyOn(CreditSalesApiEndpoint.prototype, 'get').mockReturnValue(of(aSale(1)));
+
+    const store = TestBed.inject(CreditManagementStore);
+    store.loadPaymentPlan(1);
+    expect(store.selectedSalePlan()).toEqual(plan);
+
+    store.loadSale(2);
+    expect(store.selectedSalePlan()).toBeNull();
+  });
+
+  it('loadPaymentPlan() guarda el cronograma devuelto', () => {
+    const plan = aPlan();
+    vi.spyOn(CreditSalesApiEndpoint.prototype, 'paymentPlan').mockReturnValue(of(plan));
+
+    const store = TestBed.inject(CreditManagementStore);
+    store.loadPaymentPlan(1);
+
+    expect(store.selectedSalePlan()).toEqual(plan);
+  });
+
+  it('clearSelectedSale() limpia venta y cronograma', () => {
+    vi.spyOn(CreditSalesApiEndpoint.prototype, 'get').mockReturnValue(of(aSale(1)));
+    vi.spyOn(CreditSalesApiEndpoint.prototype, 'paymentPlan').mockReturnValue(of(aPlan()));
+
+    const store = TestBed.inject(CreditManagementStore);
+    store.loadSale(1);
+    store.loadPaymentPlan(1);
+
+    store.clearSelectedSale();
+
+    expect(store.selectedSale()).toBeNull();
+    expect(store.selectedSalePlan()).toBeNull();
   });
 });
