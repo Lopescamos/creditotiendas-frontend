@@ -92,3 +92,51 @@ describe('PaymentsApiEndpoint - US-05: el cliente NUNCA envia monto', () => {
     expect(body).not.toHaveProperty('total');
   });
 });
+
+describe('BillingStore - pendiente #4: triggers del scheduler', () => {
+  afterEach(() => vi.restoreAllMocks());
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        BillingStore,
+        { provide: HttpClient, useValue: anHttp },
+      ],
+    });
+  });
+
+  it('runOverdueSweep() publica mensaje de exito y libera el lock de job', async () => {
+    const { BillingJobsApiEndpoint } = await import('../infrastructure/billing-jobs-api-endpoint');
+    vi.spyOn(BillingJobsApiEndpoint.prototype, 'runOverdueSweep').mockReturnValue(of(void 0));
+
+    const store = TestBed.inject(BillingStore);
+    store.runOverdueSweep('2026-11-23');
+
+    expect(store.jobRunning()).toBeNull();
+    expect(store.jobMessage()).toContain('Barrido');
+  });
+
+  it('runAccountStatements() propaga error del backend al signal error', async () => {
+    const { BillingJobsApiEndpoint } = await import('../infrastructure/billing-jobs-api-endpoint');
+    vi.spyOn(BillingJobsApiEndpoint.prototype, 'runAccountStatements').mockReturnValue(
+      throwError(() => new Error('POST: sin permiso')),
+    );
+
+    const store = TestBed.inject(BillingStore);
+    store.runAccountStatements();
+
+    expect(store.jobRunning()).toBeNull();
+    expect(store.error()).toContain('sin permiso');
+  });
+
+  it('runOverdueSweep() pasa asOf tal cual al endpoint; sin asOf, pasa undefined', async () => {
+    const { BillingJobsApiEndpoint } = await import('../infrastructure/billing-jobs-api-endpoint');
+    const spy = vi.spyOn(BillingJobsApiEndpoint.prototype, 'runOverdueSweep').mockReturnValue(of(void 0));
+    const store = TestBed.inject(BillingStore);
+
+    store.runOverdueSweep('2026-11-01');
+    store.runOverdueSweep();
+
+    expect(spy).toHaveBeenNthCalledWith(1, '2026-11-01');
+    expect(spy).toHaveBeenNthCalledWith(2, undefined);
+  });
+});
