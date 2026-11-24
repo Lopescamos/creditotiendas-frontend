@@ -19,6 +19,8 @@ export class CreditManagementStore {
   private salesSignal = signal<CreditSale[]>([]);
   private requestsSignal = signal<PurchaseRequest[]>([]);
   private simulationSignal = signal<PaymentPlan | null>(null);
+  private selectedSaleSignal = signal<CreditSale | null>(null);
+  private selectedSalePlanSignal = signal<PaymentPlan | null>(null);
   private loadingSignal = signal(false);
   private errorSignal = signal<string | null>(null);
 
@@ -26,6 +28,8 @@ export class CreditManagementStore {
   readonly sales = this.salesSignal.asReadonly();
   readonly requests = this.requestsSignal.asReadonly();
   readonly simulation = this.simulationSignal.asReadonly();
+  readonly selectedSale = this.selectedSaleSignal.asReadonly();
+  readonly selectedSalePlan = this.selectedSalePlanSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 
@@ -71,6 +75,24 @@ export class CreditManagementStore {
     });
   }
   clearSimulation() { this.simulationSignal.set(null); }
+
+  // US-07 (panel web) — Pendiente #2: detalle de venta con cronograma real.
+  loadSale(id: number) {
+    this.loadingSignal.set(true);
+    this.selectedSaleSignal.set(null);
+    this.selectedSalePlanSignal.set(null);
+    this.salesEp.get(id).subscribe({
+      next: (s) => { this.selectedSaleSignal.set(s); this.loadingSignal.set(false); },
+      error: (e: Error) => { this.errorSignal.set(e.message); this.loadingSignal.set(false); },
+    });
+  }
+  loadPaymentPlan(id: number) {
+    this.salesEp.paymentPlan(id).subscribe({
+      next: (p) => this.selectedSalePlanSignal.set(p),
+      error: (e: Error) => this.errorSignal.set(e.message),
+    });
+  }
+  clearSelectedSale() { this.selectedSaleSignal.set(null); this.selectedSalePlanSignal.set(null); }
 
   loadRequestsByStore(storeId: number, status?: string) {
     this.loadingSignal.set(true);
