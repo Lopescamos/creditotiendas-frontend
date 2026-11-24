@@ -22,6 +22,9 @@
   font-size: 13.5px; font-weight: 500;
 }
 .shell__nav-item:hover { background: #F2F4F0; }
+.shell__store-selector { min-width: 180px; margin: 0 8px; }
+.shell__store-selector .mat-mdc-form-field-subscript-wrapper { display: none; }
+
 .shell__nav-item--active { background: var(--ct-accent); color: var(--ct-primary-dark); font-weight: 600; }
 .shell__nav-initial {
   width: 24px; height: 24px; border-radius: 6px;

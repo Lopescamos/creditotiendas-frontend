@@ -1,9 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { AuthStore } from '../../../../iam/application/auth.store';
 import { UserRole } from '../../../domain/model/user-role.enum';
 
@@ -12,13 +15,19 @@ interface NavItem { label: string; initial: string; route: string; }
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [
+    CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive,
+    MatIconModule, MatButtonModule, MatTooltipModule, MatFormFieldModule, MatSelectModule,
+  ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.css',
 })
 export class AppShellComponent {
-  private auth = inject(AuthStore);
+  protected auth = inject(AuthStore);
   readonly user = this.auth.user;
+  readonly showStoreSelector = computed(() => this.auth.isStoreAdmin() && this.auth.hasMultipleStores());
+
+  onStoreChange(id: number) { this.auth.setActiveStore(id); }
 
   readonly brand = computed(() => this.user()?.role === UserRole.SystemAdmin
     ? { mark: 'SA', name: 'Panel Sistema', tag: 'ADMINISTRACIÓN' }
