@@ -1,0 +1,37 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Comercios</h1>
+    <p class="ct-page-subtitle">Tiendas registradas en la plataforma. Una tienda desactivada no recibe ventas ni usuarios nuevos.</p>
+  </div>
+  <a mat-flat-button routerLink="/app/system/stores/new" class="btn-primary">
+    <mat-icon fontSet="material-symbols-outlined">add</mat-icon> Nueva tienda
+  </a>
+</div>
+
+<div class="ct-card">
+  @if (store.loading()) { <p class="ct-page-subtitle">Cargando tiendas…</p> }
+  @else if (store.stores().length === 0) { <p class="ct-page-subtitle">No hay comercios registrados.</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr><th>Nombre comercial</th><th>Razón social</th><th>RUC</th><th>Dirección</th><th>Teléfono</th><th>Activa</th><th></th></tr></thead>
+      <tbody>
+        @for (s of store.stores(); track s.id) {
+          <tr>
+            <td>{{ s.nombreComercial }}</td>
+            <td>{{ s.razonSocial }}</td>
+            <td>{{ s.ruc }}</td>
+            <td>{{ s.direccion }}</td>
+            <td>{{ s.telefono }}</td>
+            <td><mat-slide-toggle [checked]="s.active" (change)="toggle(s.id, $event.checked)"></mat-slide-toggle></td>
+            <td>
+              <a mat-icon-button [routerLink]="['/app/system/stores', s.id, 'edit']">
+                <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>

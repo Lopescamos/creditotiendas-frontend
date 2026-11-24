@@ -1,0 +1,41 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Catálogo</h1>
+    <p class="ct-page-subtitle">Productos y servicios que ofreces a crédito.</p>
+  </div>
+  <a mat-flat-button routerLink="/app/store/products/new" class="btn-primary">
+    <mat-icon fontSet="material-symbols-outlined">add</mat-icon> Nuevo item
+  </a>
+</div>
+
+<div class="ct-card">
+  @if (store.loading()) { <p class="ct-page-subtitle">Cargando catálogo…</p> }
+  @else if (store.products().length === 0) { <p class="ct-page-subtitle">Tu catálogo está vacío.</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr><th></th><th>Nombre</th><th>Tipo</th><th>Marca</th><th>P. contado</th><th>P. crédito</th><th>Activo</th><th></th></tr></thead>
+      <tbody>
+        @for (p of store.products(); track p.id) {
+          <tr>
+            <td>
+              @if (p.imageUrl) { <img [src]="p.imageUrl" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;" /> }
+              @else { <div style="width:40px;height:40px;border-radius:6px;background:#EEF0ED;"></div> }
+            </td>
+            <td>{{ p.name }}</td>
+            <td><span class="ct-badge ct-badge--neutral">{{ p.type === 'SERVICE' ? 'Servicio' : 'Producto' }}</span></td>
+            <td>{{ p.brand || '—' }}</td>
+            <td>S/ {{ p.cashPrice | number:'1.2-2' }}</td>
+            <td><strong>S/ {{ p.creditPrice | number:'1.2-2' }}</strong></td>
+            <td><mat-slide-toggle [checked]="p.active" (change)="toggle(p.id, $event.checked)"></mat-slide-toggle></td>
+            <td>
+              <a mat-icon-button [routerLink]="['/app/store/products', p.id, 'edit']">
+                <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>

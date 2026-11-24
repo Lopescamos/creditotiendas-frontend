@@ -1,0 +1,38 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">{{ editing ? 'Editar comercio' : 'Nuevo comercio' }}</h1>
+    <p class="ct-page-subtitle">El alta no crea automáticamente un admin de tienda; eso se hace desde Usuarios.</p>
+  </div>
+  <a mat-stroked-button routerLink="/app/system/stores">
+    <mat-icon fontSet="material-symbols-outlined">arrow_back</mat-icon> Volver
+  </a>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="save()" class="ct-card" style="max-width: 640px; display: grid; gap: 4px;">
+  <mat-form-field appearance="outline">
+    <mat-label>RUC</mat-label>
+    <input matInput maxlength="11" formControlName="ruc" />
+    @if (form.controls.ruc.hasError('pattern')) { <mat-error>El RUC debe tener 11 dígitos.</mat-error> }
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Razón social</mat-label>
+    <input matInput formControlName="razonSocial" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Nombre comercial</mat-label>
+    <input matInput formControlName="nombreComercial" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Dirección</mat-label>
+    <input matInput formControlName="direccion" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Teléfono</mat-label>
+    <input matInput formControlName="telefono" />
+  </mat-form-field>
+  <div style="display: flex; gap: 10px; justify-content: flex-end;">
+    <a mat-stroked-button routerLink="/app/system/stores">Cancelar</a>
+    <button mat-flat-button type="submit" class="btn-primary" [disabled]="form.invalid">Guardar</button>
+  </div>
+</form>
+<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>
