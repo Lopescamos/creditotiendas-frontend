@@ -1,0 +1,75 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Jobs de facturacion</h1>
+    <p class="ct-page-subtitle">Disparar manualmente los procesos del BillingScheduler. Solo para pruebas / sustentacion.</p>
+  </div>
+</div>
+
+<div class="ct-card" style="max-width: 720px;">
+  <p>
+    Normalmente estos procesos corren automaticamente en el backend. Esta pantalla sirve
+    para ejecutarlos a demanda con una fecha de referencia (<code>asOf</code>) especifica.
+  </p>
+
+  <mat-form-field appearance="outline" style="max-width: 280px;">
+    <mat-label>Fecha de referencia (opcional)</mat-label>
+    <input matInput type="date" [ngModel]="asOf()" (ngModelChange)="asOf.set($event)" />
+  </mat-form-field>
+
+  <div class="ct-job">
+    <div class="ct-job__title">
+      <strong>Barrido de vencimientos</strong>
+      <p class="ct-page-subtitle" style="margin: 2px 0 10px;">
+        Marca cuotas como <code>OVERDUE</code> si su fecha de vencimiento ya paso.
+      </p>
+    </div>
+    <button mat-flat-button class="btn-primary"
+            (click)="trigger('overdue-sweep')"
+            [disabled]="billing.jobRunning() !== null">
+      @if (billing.jobRunning() === 'overdue-sweep') {
+        <mat-icon fontSet="material-symbols-outlined">hourglass_empty</mat-icon> Enviando...
+      } @else {
+        <mat-icon fontSet="material-symbols-outlined">bolt</mat-icon> Ejecutar
+      }
+    </button>
+  </div>
+
+  <div class="ct-job">
+    <div class="ct-job__title">
+      <strong>Generar estados de cuenta</strong>
+      <p class="ct-page-subtitle" style="margin: 2px 0 10px;">
+        Crea los snapshots mensuales para los perfiles con dia de corte igual a <code>asOf</code>.
+      </p>
+    </div>
+    <button mat-flat-button class="btn-primary"
+            (click)="trigger('account-statements')"
+            [disabled]="billing.jobRunning() !== null">
+      @if (billing.jobRunning() === 'account-statements') {
+        <mat-icon fontSet="material-symbols-outlined">hourglass_empty</mat-icon> Enviando...
+      } @else {
+        <mat-icon fontSet="material-symbols-outlined">description</mat-icon> Ejecutar
+      }
+    </button>
+  </div>
+
+  @if (billing.jobMessage()) {
+    <div class="ct-banner ct-banner--success">
+      <mat-icon fontSet="material-symbols-outlined">check_circle</mat-icon>
+      {{ billing.jobMessage() }}
+    </div>
+  }
+  @if (billing.error()) {
+    <div class="ct-banner ct-banner--error">
+      <mat-icon fontSet="material-symbols-outlined">error</mat-icon>
+      {{ billing.error() }}
+    </div>
+  }
+</div>
+
+<style>
+  .btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }
+  .ct-job { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 14px 0; border-top: 1px solid var(--ct-border, #e4e7ec); }
+  .ct-banner { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 6px; margin-top: 12px; font-size: 13px; }
+  .ct-banner--success { background: #ecfdf3; color: #067647; }
+  .ct-banner--error { background: #fef3f2; color: #b42318; }
+</style>
