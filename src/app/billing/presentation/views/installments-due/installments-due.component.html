@@ -1,0 +1,40 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Pagos y mora</h1>
+    <p class="ct-page-subtitle">Vencimientos próximos y vencidos. Selecciona cuotas de un mismo cliente para registrar su pago.</p>
+  </div>
+  <button mat-flat-button class="btn-primary" (click)="goRegister()">
+    <mat-icon fontSet="material-symbols-outlined">payments</mat-icon> Registrar pago
+  </button>
+</div>
+
+<div class="ct-card">
+  @if (billing.loading()) { <p class="ct-page-subtitle">Cargando cuotas…</p> }
+  @else if (billing.dueByStore().length === 0) { <p class="ct-page-subtitle">No hay cuotas pendientes en tu tienda.</p> }
+  @else {
+    <table class="ct-table">
+      <thead>
+        <tr><th></th><th>Cliente (perfil)</th><th>Venta</th><th>Cuota</th><th>Vence</th><th>Capital</th><th>Interés</th><th>Total</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        @for (i of billing.dueByStore(); track i.id) {
+          <tr>
+            <td>
+              <mat-checkbox [checked]="selected().has(i.id)" (change)="toggle(i.id, $event.checked)"
+                            [disabled]="i.status === 'PAID_ON_TIME' || i.status === 'PAID_LATE'"></mat-checkbox>
+            </td>
+            <td>#{{ i.creditProfileId }}</td>
+            <td>#{{ i.creditSaleId }}</td>
+            <td>{{ i.installmentNumber }}</td>
+            <td>{{ i.dueDate | date:'mediumDate' }}</td>
+            <td>S/ {{ i.capital | number:'1.2-2' }}</td>
+            <td>S/ {{ i.interest | number:'1.2-2' }}</td>
+            <td><strong>S/ {{ i.installmentAmount | number:'1.2-2' }}</strong></td>
+            <td><span [class]="statusBadge(i.status)">{{ i.status }}</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+<style>.btn-primary { background: var(--ct-accent) !important; color: var(--ct-primary-dark) !important; font-weight: 600; }</style>

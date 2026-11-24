@@ -1,0 +1,42 @@
+<div class="ct-toolbar">
+  <div>
+    <h1 class="ct-page-title">Estados de cuenta</h1>
+    <p class="ct-page-subtitle">Snapshot mensual al día de corte de cada cliente. Un estado generado no se recalcula.</p>
+  </div>
+</div>
+
+<div class="ct-card" style="margin-bottom: 14px;">
+  <mat-form-field appearance="outline" style="max-width: 420px; margin: 0;">
+    <mat-label>Perfil de crédito</mat-label>
+    <mat-select [ngModel]="selected()" (ngModelChange)="onProfileChange($event)">
+      @for (p of credit.profiles(); track p.id) {
+        <mat-option [value]="p.id">{{ p.clientFullName }} · {{ p.clientDocument }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div class="ct-card">
+  @if (!selected()) { <p class="ct-page-subtitle">Selecciona un perfil para ver sus estados de cuenta.</p> }
+  @else if (billing.loading()) { <p class="ct-page-subtitle">Cargando…</p> }
+  @else if (billing.statements().length === 0) { <p class="ct-page-subtitle">Aún no se ha generado un estado de cuenta para este perfil.</p> }
+  @else {
+    <table class="ct-table">
+      <thead><tr><th>Período</th><th>Saldo inicial</th><th>Compras</th><th>Pagos</th><th>Interés</th><th>Mora</th><th>Saldo final</th><th>Generado</th></tr></thead>
+      <tbody>
+        @for (s of billing.statements(); track s.id) {
+          <tr>
+            <td><strong>{{ s.period }}</strong></td>
+            <td>S/ {{ s.previousBalance | number:'1.2-2' }}</td>
+            <td>S/ {{ s.periodPurchases | number:'1.2-2' }}</td>
+            <td>S/ {{ s.periodPayments | number:'1.2-2' }}</td>
+            <td>S/ {{ s.periodInterest | number:'1.2-2' }}</td>
+            <td>S/ {{ s.periodLateFees | number:'1.2-2' }}</td>
+            <td><strong>S/ {{ s.finalBalance | number:'1.2-2' }}</strong></td>
+            <td>{{ s.generatedAt | date:'short' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

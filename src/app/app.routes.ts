@@ -96,6 +96,27 @@ export const routes: Routes = [
                 (m) => m.ProductFormComponent,
               ),
           },
+          {
+            path: 'payments',
+            loadComponent: () =>
+              import('./billing/presentation/views/installments-due/installments-due.component').then(
+                (m) => m.InstallmentsDueComponent,
+              ),
+          },
+          {
+            path: 'payments/register',
+            loadComponent: () =>
+              import('./billing/presentation/views/register-payment/register-payment.component').then(
+                (m) => m.RegisterPaymentComponent,
+              ),
+          },
+          {
+            path: 'account-statements',
+            loadComponent: () =>
+              import('./billing/presentation/views/account-statements-list/account-statements-list.component').then(
+                (m) => m.AccountStatementsListComponent,
+              ),
+          },
         ],
       },
 
