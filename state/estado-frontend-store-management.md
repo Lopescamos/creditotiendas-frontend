@@ -18,6 +18,9 @@ Tiendas (admin `SYSTEM_ADMIN`) y catálogo de productos (admin
 - `products-api-endpoint.ts` — `GET/POST /stores/{id}/products`,
   `GET|PUT /products/{id}`, `PATCH /products/{id}/status`, upload de
   imagen a Cloudinary (`POST /products/{id}/image`).
+  - **Pendiente #3 resuelto:** nueva `uploadImageWithProgress()` con
+    `reportProgress: true, observe: 'events'` que emite `UploadEvent`
+    con `{kind, progress, product, done}` por cada chunk subido.
 - `catalog-apis.ts` — `GET /currencies`, `GET /measurement-units`.
 
 ## Application
@@ -25,6 +28,9 @@ Tiendas (admin `SYSTEM_ADMIN`) y catálogo de productos (admin
 - `store-management.store.ts` — signals para tiendas, productos,
   monedas, unidades, con `loadStores()`, `createStore()`,
   `loadProducts(storeId)`, `uploadProductImage()`.
+  - **Pendiente #3:** expone `uploadProgress` y `uploadError`; el
+    método `uploadImage` suscribe al stream de `UploadEvent` y
+    actualiza el porcentaje en tiempo real.
 
 ## Presentation
 
@@ -33,7 +39,9 @@ Tiendas (admin `SYSTEM_ADMIN`) y catálogo de productos (admin
   `/app/system/stores/:id/edit`.
 - `views/products-list` — US-11, `/app/store/products`.
 - `views/product-form` — US-11, `/app/store/products/new` y
-  `/app/store/products/:id/edit`.
+  `/app/store/products/:id/edit`. **Pendiente #3:** barra de progreso
+  en vivo (`mat-progress-bar`), banner de error del backend y bloqueo
+  local cuando el archivo pasa de 5 MB.
 
 ## Rutas que aporta
 
@@ -53,8 +61,10 @@ Tiendas (admin `SYSTEM_ADMIN`) y catálogo de productos (admin
   path + error, `createStore` agrega al final, `updateStore` reemplaza
   por id, `toggleStoreStatus` propaga `active`, y `loadProductsByStore`
   pasa el `storeId` correcto al endpoint.
+  - **Pendiente #3:** `uploadImage` refleja el progreso del endpoint
+    en `uploadProgress()`; con error limpia el progreso y guarda el
+    mensaje; `clearUploadState()` reinicia ambos a `null`.
 
 ## Notas
 
-- La subida de imagen aún no tiene progreso ni manejo explícito de
-  errores de red — pendiente #3 en `state/pendientes.md`.
+- Pendiente #3 (subida con progreso/error) resuelto en esta iteración.

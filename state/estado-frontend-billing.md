@@ -21,6 +21,9 @@ de cuenta mensuales.
   (calcula desglose) y `POST /credit-profiles/{id}/payments`
   (**sin monto** en el request).
 - `account-statements-api-endpoint.ts` — listado por perfil y detalle.
+- **Pendiente #4 resuelto:** `billing-jobs-api-endpoint.ts` con
+  `runOverdueSweep(asOf?)` y `runAccountStatements(asOf?)` → `POST` a
+  `/api/v1/admin/billing/jobs/{overdue-sweep,account-statements}`.
 
 ## Application
 
@@ -28,6 +31,9 @@ de cuenta mensuales.
   exigible actual y estados de cuenta. Garantiza en UI que la
   confirmación de pago nunca lleva un monto — solo los
   `installmentIds` seleccionados.
+  - **Pendiente #4:** expone `jobRunning` y `jobMessage`;
+    `runOverdueSweep()` y `runAccountStatements()` orquestan los
+    triggers y reportan el resultado al UI.
 
 ## Presentation
 
@@ -35,12 +41,17 @@ de cuenta mensuales.
 - `views/register-payment` — US-05 (UF-10), confirmación con
   desglose; sin campo de monto.
 - `views/account-statements-list` — US-06 (UF-11), solo lectura.
+- **Pendiente #4 resuelto:** `views/billing-jobs` en
+  `/app/system/billing-jobs` (solo `SYSTEM_ADMIN`) — dispara los dos
+  jobs con una fecha `asOf` opcional, muestra estado `running` y
+  banner de éxito/error.
 
 ## Rutas que aporta
 
 - `app/store/payments`.
 - `app/store/payments/register`.
 - `app/store/account-statements`.
+- `app/system/billing-jobs` (pendiente #4).
 
 ## US / UF cubiertos
 
@@ -57,11 +68,17 @@ de cuenta mensuales.
   - **Regla crítica US-05:** test dedicado a `PaymentsApiEndpoint.register`
     verifica que el body POST solo lleva `installmentIds` — nunca
     `amount`, `monto` ni `total`.
+  - **Pendiente #4:** `runOverdueSweep` publica mensaje de éxito y
+    libera el lock de job; `runAccountStatements` propaga error al
+    signal `error`; ambos pasan `asOf` (o `undefined`) al endpoint.
+- `infrastructure/installments-api-endpoint.spec.ts` — URLs de
+  `listBySale`, `listDueByStore` y `paymentDue`; este último además
+  verifica que `installmentIds` va como CSV en query param.
+- `infrastructure/billing-jobs-api-endpoint.spec.ts` — URLs y
+  parámetro `asOf` opcional para los dos triggers.
 
 ## Notas
 
-- Pendiente #4: los triggers manuales de `BillingScheduler`
-  (`overdue-sweep`, `account-statements`) todavía no tienen vista —
-  hoy se disparan con curl/Postman.
+- Pendiente #4 (triggers del scheduler) resuelto en esta iteración.
 - `credit-management/store-dashboard` consume este store para KPIs
   (dependencia inversa conocida).

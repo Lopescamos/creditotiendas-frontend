@@ -7,60 +7,54 @@ pasa por los 5 agentes en orden y deja tu resumen en
 
 ## Backlog
 
-### 1. Selector de tienda multi-tenant para `STORE_ADMIN`
-- **BC afectado:** `iam` (sesión) + `shared` (app-shell)
-- **Prioridad:** media
-- **Por qué falta:** hoy el frontend asume que un `STORE_ADMIN` está
-  vinculado a una sola tienda (`storeIds[0]`). El backend ya soporta
-  varias (`Usuario_Tienda` es una relación N:N, ver `estado-iam.md`).
-- **Depende de:** nada del backend — el dato (`storeIds`) ya viene en el
-  `sign-in`. Es trabajo 100% de frontend.
-
-### 2. Detalle de venta al crédito con `payment-plan` real
-- **BC afectado:** `credit-management` + `billing`
-- **Prioridad:** alta (afecta directamente US-07 visto desde el panel
-  del Admin Tienda, hoy solo se ve en la app mobile del cliente)
-- **Por qué falta:** `credit-sales-list` no abre un detalle; el endpoint
-  `GET /api/v1/credit-sales/{id}/payment-plan` ya existe y no se
-  consume desde el web.
-- **Depende de:** nada nuevo del backend, el endpoint ya está.
-
-### 3. Pulir subida de imágenes de producto (Cloudinary)
-- **BC afectado:** `store-management`
-- **Prioridad:** baja
-- **Por qué falta:** el upload (`POST /api/v1/products/{id}/image`)
-  funciona pero sin barra de progreso ni manejo explícito de error de
-  red/archivo muy pesado.
-- **Depende de:** nada del backend.
-
-### 4. Pantalla de triggers manuales de `BillingScheduler`
-- **BC afectado:** `billing` (vista nueva en `system/*`)
-- **Prioridad:** baja (solo para demo/sustentación, no es un flujo de
-  usuario final)
-- **Por qué falta:** el backend expone
-  `POST /api/v1/admin/billing/jobs/overdue-sweep?asOf=` y
-  `POST /api/v1/admin/billing/jobs/account-statements?asOf=`
-  (`SYSTEM_ADMIN`), pero no hay botón en el panel para dispararlos —
-  hoy se prueban con curl/Postman.
-- **Depende de:** nada nuevo del backend, los endpoints ya existen.
-
-### 5. Ampliar cobertura de pruebas unitarias
-- **BC afectado:** transversal
-- **Prioridad:** baja
-- **Por qué falta:** hoy existe cobertura retroactiva de los *stores*
-  y del `BaseApiEndpoint` (ver sección `## Tests` en cada
-  `estado-frontend-<bc>.md`), pero no hay specs de componentes
-  (templates del wizard, del register-payment, del app-shell) ni de
-  los demás endpoints por recurso.
-- **Depende de:** nada — es todo frontend; usa el mismo patrón ya
-  establecido (`vi.spyOn(Endpoint.prototype, …)`, `afterEach(() =>
-  vi.restoreAllMocks())`).
+> Todos los pendientes de la primera iteración (#1–#5) están resueltos
+> y mergeados a `develop`. Este archivo se deja con los ítems en la
+> sección `## Completado` para no perder trazabilidad. Si surgen
+> nuevos pendientes, van arriba de esta nota.
 
 ## Completado
 
 Los 6 bounded contexts (`shared`, `iam`, `store-management`,
 `credit-management`, `billing`, `audit`) están implementados de punta a
 punta — ver `docs/user-stories.md` para el detalle de qué US cubre cada
-uno. Cada BC tiene cobertura de prueba inicial sobre su *store* y/o
-piezas críticas de infraestructura (ver sección `## Tests` en cada
-`state/estado-frontend-<bc>.md`).
+uno. Cada BC tiene cobertura de prueba sobre su *store*, sus
+endpoints críticos y las piezas transversales de infraestructura (ver
+sección `## Tests` en cada `state/estado-frontend-<bc>.md`).
+
+### Backlog cerrado en esta iteración
+
+1. **Selector multi-tienda para `STORE_ADMIN`** — resuelto.
+   - Rama: `feature/multi-tenant-store-selector` (iam + shared).
+   - `AuthStore` expone `activeStoreId` writable + `setActiveStore()`
+     con persistencia en `localStorage` (`ACTIVE_STORE_KEY`).
+   - El `app-shell` muestra un selector en el topbar cuando el usuario
+     tiene 2+ tiendas vinculadas.
+
+2. **Detalle de venta con `payment-plan` real** — resuelto.
+   - Rama: `feature/credit-sale-detail` (credit-management + billing).
+   - Nueva vista `credit-sale-detail` en `/app/store/credit-sales/:id`
+     que combina el snapshot del cronograma (`payment-plan`) con el
+     estado real de cada cuota (`billing.saleInstallments`).
+   - `credit-sales-list` enlaza el id de venta al nuevo detalle.
+
+3. **Progreso/error en subida Cloudinary** — resuelto.
+   - Rama: `feature/store-management` (reutilizada).
+   - `ProductsApiEndpoint.uploadImageWithProgress` usa
+     `reportProgress: true, observe: 'events'` y publica `UploadEvent`.
+   - `store-management.store` expone `uploadProgress` y `uploadError`.
+   - `product-form` muestra barra de progreso + bloqueo local de 5 MB.
+
+4. **Pantalla triggers manuales `BillingScheduler`** — resuelto.
+   - Rama: `feature/billing` (reutilizada).
+   - `BillingJobsApiEndpoint` + `BillingStore.runOverdueSweep()` /
+     `runAccountStatements()`.
+   - Nueva vista `billing-jobs` en `/app/system/billing-jobs` (solo
+     `SYSTEM_ADMIN`) + link en el sidebar.
+
+5. **Ampliar cobertura de pruebas** — resuelto.
+   - Rama: `test/coverage-extended`.
+   - Specs nuevos por recurso:
+     `iam/infrastructure/authentication-api.spec.ts`,
+     `billing/infrastructure/installments-api-endpoint.spec.ts`,
+     `billing/infrastructure/billing-jobs-api-endpoint.spec.ts`,
+     `credit-management/infrastructure/credit-sales-api-endpoint.spec.ts`.

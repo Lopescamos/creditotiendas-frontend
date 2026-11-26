@@ -38,7 +38,10 @@ Shared no define store: es kernel, no estado de negocio.
   consulta `AuthStore` para validar rol.
 - `presentation/layouts/app-shell/app-shell.component.{ts,html,css}`
   — shell con toolbar + sidenav por rol (`system/*` vs `store/*`).
-  Monta el `<router-outlet>` de las rutas hijas de `/app`.
+  Monta el `<router-outlet>` de las rutas hijas de `/app`. **Pendiente
+  #1 resuelto:** cuando el `STORE_ADMIN` tiene 2+ tiendas vinculadas,
+  muestra un `mat-select` en el topbar para cambiar la tienda activa
+  (llama a `AuthStore.setActiveStore()`).
 - `presentation/services/notification.service.ts` — wrapper sobre
   `MatSnackBar` para mensajes de éxito/error uniformes.
 
