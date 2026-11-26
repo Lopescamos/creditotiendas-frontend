@@ -23,8 +23,8 @@ solicitudes de compra.
   simulación (`POST .../credit-sale-simulations`).
 - `credit-sales-api-endpoint.ts` — `POST/GET
   /credit-profiles/{id}/credit-sales`, `GET /credit-sales/{id}`,
-  `GET /credit-sales/{id}/payment-plan` (⚠️ pendiente #2: existe pero
-  no se consume todavía).
+  `GET /credit-sales/{id}/payment-plan` (**pendiente #2 resuelto**: ya
+  se consume desde la vista `credit-sale-detail`).
 - `purchase-requests-api-endpoint.ts` — listado por tienda,
   `POST .../approval`, `POST .../rejection` (motivo obligatorio).
 
@@ -34,6 +34,9 @@ solicitudes de compra.
   solicitudes y último cronograma simulado. Orquesta "simular antes
   de registrar": no permite confirmar venta si la simulación devolvió
   que excede crédito disponible.
+  - **Pendiente #2:** `selectedSale` + `selectedSalePlan`,
+    `loadSale(id)` y `loadPaymentPlan(id)` para alimentar la vista
+    de detalle; `clearSelectedSale()` al desmontar.
 
 ## Presentation
 
@@ -41,8 +44,11 @@ solicitudes de compra.
   también `billing.store` para mora/vencimientos.
 - `views/credit-profiles-list` + `credit-profile-form` — US-04
   (UF-06).
-- `views/credit-sales-list` — US-02 vista histórica; abrir detalle
-  (payment-plan) es pendiente #2.
+- `views/credit-sales-list` — US-02 vista histórica; enlaza al
+  detalle en `credit-sales/:id`.
+- `views/credit-sale-detail` — **pendiente #2 resuelto**: cronograma
+  real fusionando `payment-plan` (snapshot) con `billing.saleInstallments`
+  (estado actual por cuota). Muestra el snapshot de tasas.
 - `views/credit-sale-wizard` — US-02 (UF-07), stepper: cliente →
   productos → modalidad/plazo → simular → confirmar.
 - `views/purchase-requests-inbox` — US-12 (UF-08); aprobar genera la
@@ -52,13 +58,13 @@ solicitudes de compra.
 
 - `app/store/dashboard` — landing del `STORE_ADMIN`.
 - `app/store/credit-profiles`, `/new`, `/:id/edit`.
-- `app/store/credit-sales`, `/new` (wizard).
+- `app/store/credit-sales`, `/new` (wizard), `/app/store/credit-sales/:id` (detalle).
 - `app/store/purchase-requests`.
 - Reapunta `app/store` → `dashboard` (antes `products`).
 
 ## US / UF cubiertos
 
-- US-01, US-02, US-04, US-12.
+- US-01, US-02, US-04, US-07 (panel web, resuelto en #2), US-12.
 - UF-05, UF-06, UF-07, UF-08.
 
 ## Tests
@@ -71,9 +77,14 @@ solicitudes de compra.
   - `clearSimulation()` descarta el plan simulado.
   - `approveRequest()` / `rejectRequest()` reemplazan la solicitud en
     el signal y reject pasa el motivo al endpoint.
+  - **Pendiente #2:** `loadSale` guarda la venta y resetea plan previo;
+    `loadPaymentPlan` guarda el cronograma; `clearSelectedSale` limpia
+    ambos.
+- `infrastructure/credit-sales-api-endpoint.spec.ts` — verifica URLs y
+  payload exactos de `simulate`, `register`, `get` y `paymentPlan`.
 
 ## Notas
 
 - El store-dashboard depende de `BillingStore` (dependencia conocida
   entre BCs; el dashboard es una vista agregada de lectura).
-- Pendiente #2: abrir detalle de venta con `payment-plan` real.
+- Pendiente #2 (detalle de venta con `payment-plan`) resuelto.
